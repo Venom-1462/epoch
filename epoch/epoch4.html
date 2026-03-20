@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPOCH | Next-Gen Heritage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        landoGreen: '#B5FF00', // Signature high-speed racing green
+                        electricBlue: '#00E5FF', // Vibrant blueprint blue
+                        dark: '#050505',
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Styles & Custom Scrollbar */
+        body { background-color: #050505; color: #fff; overflow-x: hidden; cursor: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #B5FF00; }
+
+        /* Custom Cursor (Mixed Colors) */
+        .cursor-dot { width: 8px; height: 8px; background: #B5FF00; position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; box-shadow: 0 0 10px #B5FF00; }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(0, 229, 255, 0.7); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: 0.1s ease-out; }
+        a:hover ~ .cursor-dot, button:hover ~ .cursor-dot { width: 50px; height: 50px; background: rgba(0, 229, 255, 0.2); mix-blend-mode: screen; border: 1px solid #00E5FF; }
+
+        /* Loader Screen */
+        #loader { position: fixed; inset: 0; background: #050505; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1); }
+        .loader-bar { width: 0%; height: 2px; background: #00E5FF; margin-top: 20px; transition: width 1.5s ease-in-out; }
+        .slide-up { transform: translateY(-100%); }
+
+        /* Scroll Reveal Animations */
+        .reveal { opacity: 0; transform: translateY(60px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Infinite Marquee */
+        .marquee-wrapper { overflow: hidden; white-space: nowrap; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 15px 0; background: #0a0a0a; transform: rotate(-2deg) scale(1.05); margin: 50px 0; }
+        .marquee { display: inline-block; animation: marquee 20s linear infinite; font-size: 2rem; font-weight: 900; color: transparent; -webkit-text-stroke: 1px #fff; text-transform: uppercase; }
+        .marquee span { margin-right: 50px; }
+        .marquee span.filled { color: #B5FF00; -webkit-text-stroke: 0; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* Hero Image Effect */
+        .hero-img { filter: grayscale(100%) contrast(1.2); opacity: 0.4; transition: 0.5s; mask-image: linear-gradient(to bottom, black 50%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }
+        .hero-img:hover { filter: grayscale(0%) contrast(1.1); opacity: 0.8; }
+
+        /* Blueprint Background Animation */
+        .blueprint-anim { position: absolute; inset: 0; z-index: 0; opacity: 0.15; background-image: linear-gradient(rgba(0, 229, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.5) 1px, transparent 1px); background-size: 40px 40px; animation: panBlueprint 15s linear infinite; pointer-events: none; }
+        @keyframes panBlueprint { 0% { background-position: 0 0; } 100% { background-position: 40px 40px; } }
+
+        /* AR Demo Simulation Styles */
+        .ar-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: none; opacity: 0; transition: opacity 0.3s; }
+        .ar-screen.active { display: block; opacity: 1; }
+        .bracket { position: absolute; width: 50px; height: 50px; border: 2px solid #00E5FF; filter: drop-shadow(0 0 10px #00E5FF); }
+        .tl { top: 20%; left: 5%; border-right: none; border-bottom: none; }
+        .tr { top: 20%; right: 5%; border-left: none; border-bottom: none; }
+        .bl { bottom: 30%; left: 5%; border-right: none; border-top: none; }
+        .br { bottom: 30%; right: 5%; border-left: none; border-top: none; }
+        .scan-line { position: absolute; top: 20%; left: 5%; width: 90%; height: 1px; background: #B5FF00; box-shadow: 0 0 20px 5px rgba(181,255,0,0.4); animation: scan 2s infinite ease-in-out alternate; }
+        @keyframes scan { 0% { top: 20%; } 100% { top: 70%; } }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; z-index: 4000; background: rgba(5,5,5,0.95); backdrop-filter: blur(15px); justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal.active { display: flex; opacity: 1; }
+    </style>
+</head>
+<body class="selection:bg-landoGreen selection:text-black relative">
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <div id="loader">
+        <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-transparent" style="-webkit-text-stroke: 1px #B5FF00;">EPOCH.</h1>
+        <div class="text-xs tracking-[0.3em] text-gray-500 mt-2">INITIALIZING WEB AR</div>
+        <div class="w-64">
+            <div class="loader-bar" id="loader-bar"></div>
+        </div>
+    </div>
+
+    <nav class="fixed top-0 w-full p-6 mix-blend-difference z-50 flex justify-between items-center">
+        <div class="text-2xl md:text-3xl font-black tracking-tighter cursor-pointer hover:scale-105 transition-transform">
+            <span class="text-landoGreen">EP</span><span class="text-electricBlue">OCH.</span>
+        </div>
+        
+        <button onclick="openDemo()" class="group relative px-6 py-2 overflow-hidden border border-landoGreen text-landoGreen text-sm font-bold uppercase tracking-wider">
+            <span class="relative z-10 group-hover:text-black transition-colors duration-300">Launch Beta</span>
+            <div class="absolute inset-0 bg-landoGreen scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out"></div>
+        </button>
+    </nav>
+
+    <header class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <img src="https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?q=80&w=2000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover hero-img" alt="Ruins">
+        
+        <div class="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
+            <div class="border border-electricBlue/40 px-4 py-1 rounded-full text-xs font-bold tracking-[0.2em] mb-8 bg-black/50 backdrop-blur-md reveal text-electricBlue">
+                <span class="w-2 h-2 inline-block bg-landoGreen rounded-full mr-2 animate-pulse"></span> LIVE PROTOTYPE
+            </div>
+            
+            <h1 class="text-[12vw] leading-none font-black tracking-tighter uppercase reveal" style="animation-delay: 0.1s;">
+                Step <span class="text-transparent" style="-webkit-text-stroke: 2px #fff;">Inside</span><br>
+                <span class="text-landoGreen">History.</span>
+            </h1>
+            
+            <p class="mt-8 text-lg md:text-xl text-gray-400 max-w-2xl font-light reveal" style="animation-delay: 0.2s;">
+                No apps. No headsets. Point your smartphone at physical ruins and watch the original architecture reconstruct in native WebAR.
+            </p>
+
+            <div class="mt-12 flex flex-col sm:flex-row gap-6 reveal" style="animation-delay: 0.3s;">
+                <button onclick="openDemo()" class="bg-landoGreen text-black px-10 py-4 font-black uppercase tracking-wider hover:bg-white transition-colors flex items-center justify-center gap-3">
+                    <i class="fas fa-camera"></i> Start AR Simulator
+                </button>
+                <button onclick="openVideo()" class="border border-white/30 bg-black/40 backdrop-blur-md px-10 py-4 font-bold uppercase tracking-wider hover:border-electricBlue hover:text-electricBlue transition-colors flex items-center justify-center gap-3">
+                    <i class="fas fa-play"></i> Watch Pitch
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="marquee-wrapper reveal">
+        <div class="marquee">
+            <span>Spatial Audio</span> <span class="filled text-electricBlue">WebAR</span> <span>No App Required</span> <span class="filled">Time Travel</span> <span>Amaravati Stupa</span>
+            <span>Spatial Audio</span> <span class="filled text-electricBlue">WebAR</span> <span>No App Required</span> <span class="filled">Time Travel</span> <span>Amaravati Stupa</span>
+        </div>
+    </div>
+
+    <section class="py-24 relative z-10 bg-dark overflow-hidden">
+        <div class="blueprint-anim"></div> <div class="container mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="border-t border-gray-800 pt-6 reveal hover:border-landoGreen transition-colors group bg-black/40 backdrop-blur-sm p-4">
+                    <div class="text-landoGreen text-4xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fas fa-bolt"></i></div>
+                    <h3 class="text-2xl font-black uppercase mb-3">Zero Friction</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Tourists don't want to download 500MB apps on spotty site Wi-Fi. EPOCH runs entirely in the mobile browser using cutting-edge WebXR frameworks.</p>
+                </div>
+                <div class="border-t border-electricBlue pt-6 reveal group bg-black/40 backdrop-blur-sm p-4" style="animation-delay: 0.1s;">
+                    <div class="text-white text-4xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fas fa-cube"></i></div>
+                    <h3 class="text-2xl font-black uppercase mb-3 text-electricBlue">Spatial Anchors</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Our simulated SLAM environment maps 3D reconstructions precisely over physical ruins, creating a 1:1 scale illusion of historical time travel.</p>
+                </div>
+                <div class="border-t border-gray-800 pt-6 reveal hover:border-landoGreen transition-colors group bg-black/40 backdrop-blur-sm p-4" style="animation-delay: 0.2s;">
+                    <div class="text-landoGreen text-4xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fas fa-headphones"></i></div>
+                    <h3 class="text-2xl font-black uppercase mb-3">Geo-Audio</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Physical movement triggers location-specific audio narratives. It's an interactive museum guide that lives seamlessly in your pocket.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="videoModal" class="modal">
+        <div class="relative w-full max-w-5xl p-6">
+            <button onclick="closeVideo()" class="absolute -top-12 right-6 text-white hover:text-landoGreen text-xl font-black uppercase tracking-widest transition-colors">Close [X]</button>
+            <div class="bg-dark border border-electricBlue aspect-video relative group cursor-none shadow-[0_0_30px_rgba(0,229,255,0.2)]">
+                <video id="pitchVideo" controls class="w-full h-full object-cover">
+                    <source src="my-pitch.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="mt-6 border-l-4 border-landoGreen pl-4">
+                <p class="text-sm md:text-base text-gray-400 italic">"Static plaques and dry guidebooks just don't capture the magic. Meet EPOCH. We transform how you experience history..."</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="arDemo" class="ar-screen">
+        <img src="https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover filter brightness-50" alt="Camera Feed">
+        
+        <div class="absolute inset-0 p-6 flex flex-col justify-between">
+            <div class="flex justify-between items-start font-mono text-xs text-electricBlue tracking-widest drop-shadow-md">
+                <div>
+                    <span class="text-white block mb-1">SYS.STATUS: ONLINE</span>
+                    <span>LENS: ACTIVE</span>
+                </div>
+                <button onclick="closeDemo()" class="border border-landoGreen text-landoGreen px-4 py-2 hover:bg-landoGreen hover:text-black transition-colors font-bold z-50 pointer-events-auto">
+                    EXIT AR
+                </button>
+            </div>
+
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="bracket tl"></div>
+                <div class="bracket tr"></div>
+                <div class="bracket bl"></div>
+                <div class="bracket br"></div>
+                <div class="scan-line"></div>
+                <div class="absolute top-[75%] w-full text-center font-mono text-electricBlue font-bold tracking-[0.2em]" id="ar-percent">
+                    ANALYZING GEOMETRY... 68%
+                </div>
+            </div>
+
+            <div class="bg-black/80 border border-electricBlue/30 p-6 backdrop-blur-md max-w-md mx-auto w-full z-50 pointer-events-auto">
+                <div class="text-landoGreen text-[10px] uppercase font-bold tracking-widest mb-2 flex justify-between">
+                    <span>Target Acquired</span>
+                    <span class="text-electricBlue">1:1 Scale</span>
+                </div>
+                <h2 class="text-2xl font-black uppercase mb-1">Amaravati Maha Stupa</h2>
+                <p class="text-gray-400 text-xs mb-4">Rendering structural blueprint overlay...</p>
+                <div class="w-full h-1 bg-gray-800">
+                    <div class="h-full bg-electricBlue w-[68%] relative shadow-[0_0_15px_#00E5FF]">
+                        <div class="absolute right-0 top-0 bottom-0 w-2 bg-white animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark py-24 border-t border-gray-900 text-center relative z-10 overflow-hidden">
+        <div class="container mx-auto px-6 reveal flex flex-col items-center">
+            
+            <h2 class="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8">
+                Ready to <span class="text-transparent" style="-webkit-text-stroke: 1px #00E5FF;">Build?</span>
+            </h2>
+            
+            <button id="contactBtn" onclick="simulateContact()" class="group relative inline-flex items-center justify-center px-10 py-5 font-bold uppercase tracking-widest text-white bg-transparent border-2 border-white hover:border-landoGreen overflow-hidden transition-all duration-300 mb-24">
+                <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-landoGreen rounded-full group-hover:w-full group-hover:h-56"></span>
+                <span class="relative group-hover:text-black transition-colors">Request Investor Deck</span>
+            </button>
+            
+            <div class="relative w-full max-w-md mx-auto mb-12 group cursor-pointer">
+                <div class="absolute inset-0 bg-gradient-to-r from-landoGreen/10 via-white/5 to-electricBlue/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+                
+                <img src="https://i.ibb.co/6jWmNsR/epoch3.png" alt="EPOCH Heritage Blueprint Logo" class="relative z-10 w-full h-auto hover:scale-105 transition-transform duration-500 drop-shadow-2xl">
+            </div>
+
+            <div class="text-gray-600 text-xs font-mono tracking-widest uppercase border-t border-gray-800 w-full max-w-3xl pt-8">
+                Prototype build for VIT Amaravati. &copy; 2026 EPOCH Tech.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor Logic
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        window.addEventListener("mousemove", function(e) {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            
+            dot.style.left = `${posX}px`;
+            dot.style.top = `${posY}px`;
+            
+            // Slight delay for the outline for smoothness
+            outline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 100, fill: "forwards" });
+        });
+
+        // Preloader Logic
+        window.addEventListener('load', () => {
+            const loaderBar = document.getElementById('loader-bar');
+            const loader = document.getElementById('loader');
+            
+            setTimeout(() => { loaderBar.style.width = '100%'; }, 100);
+            
+            setTimeout(() => {
+                loader.classList.add('slide-up');
+                setTimeout(() => { loader.style.display = 'none'; }, 800);
+            }, 1200);
+        });
+
+        // Scroll Reveal Animations via Intersection Observer
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+        
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            });
+        }, revealOptions);
+
+        reveals.forEach(reveal => {
+            revealOnScroll.observe(reveal);
+        });
+
+        // Pitch Video Logic
+        const videoModal = document.getElementById('videoModal');
+        const pitchVideo = document.getElementById('pitchVideo');
+        
+        function openVideo() {
+            videoModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            dot.style.display = 'none'; outline.style.display = 'none';
+        }
+        function closeVideo() {
+            videoModal.classList.remove('active');
+            pitchVideo.pause(); 
+            document.body.style.overflow = 'auto';
+            dot.style.display = 'block'; outline.style.display = 'block';
+        }
+
+        // AR Demo Simulator Logic
+        const arDemo = document.getElementById('arDemo');
+        const arPercent = document.getElementById('ar-percent');
+        let arInterval;
+
+        function openDemo() {
+            arDemo.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            dot.style.display = 'none'; outline.style.display = 'none';
+            
+            let base = 68;
+            arInterval = setInterval(() => {
+                let current = base + Math.floor(Math.random() * 5);
+                arPercent.innerText = `ANALYZING GEOMETRY... ${current}%`;
+            }, 400);
+        }
+
+        function closeDemo() {
+            arDemo.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            clearInterval(arInterval);
+            dot.style.display = 'block'; outline.style.display = 'block';
+        }
+
+        // Contact Button Simulator
+        function simulateContact() {
+            const btn = document.getElementById('contactBtn');
+            btn.innerHTML = '<span class="relative text-black font-black">SYSTEM UPLOAD COMPLETE [✓]</span>';
+            btn.style.borderColor = '#B5FF00';
+            btn.style.backgroundColor = '#B5FF00';
+            btn.style.pointerEvents = 'none';
+        }
+    </script>
+</body>
+</html>
